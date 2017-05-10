@@ -1,83 +1,208 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <time.h>
+#include <stdbool.h>
 #include "deck.h"
+#include "utils.h"
 
 void test();
+HAND_T *createHands();
+int verifyPoints(HAND_T *cards);
+HAND_T *orderHands(HAND_T *hand);
+void checkForRoyalStraightFlash(HAND_T **hand_addr, HAND_T **copy, HAND_T **best_order);
+void checkForStraightFlush(HAND_T **hand_addr, HAND_T **copy, HAND_T **best_order);
 
 int main() {
 
-    CARD_T **cards;
-    cards = malloc(DECK_SIZE * sizeof (CARD_T));
+//    CARD_T **cards;
+//    cards = malloc(DECK_SIZE * sizeof (CARD_T));
+//
+//    printf("Criando baralho padrão.\n");
+//    createDeck(cards);
+//    printDeck(cards);
+//
+//    printf("\nEmbaralhando com semente %d.\n", SEED);
+//    shuffle(cards, SEED);
+//    printDeck(cards);
 
-    printf("Criando baralho padrão.\n");
-    createDeck(cards);
-    printDeck(cards);
 
-    printf("\nEmbaralhando com semente %d.\n", SEED);
-    shuffle(cards, SEED);
-    printDeck(cards);
+    HAND_T *cards;
+    int points;
+
+    cards=createHands();
+//    printHands(cards);
+    printf("\n");
+    cards= orderHands(cards);
+    points = verifyPoints(cards);
+    printf("Pontos: %d\n", points);
+
 
     exit(0);
 }
 
+HAND_T *createHands(){
+    int i;
+    unsigned int seed=1;
+    srand((unsigned int) time(NULL));
+    CARD_T **cards;
+    HAND_T *new, *list=NULL;
+    cards = malloc(DECK_SIZE * sizeof(cards));
+    createDeck(cards);
+    shuffle(cards, 1028929438); //RSF
+//    shuffle(cards, (unsigned int) rand());
+    for(i=0; i<25; i++){
+        new = malloc(sizeof(HAND_T));
+        new->card.value=cards[i]->value;
+        new->card.suit=cards[i]->suit;
+        new->next=list;
+        list=new;
+    }
+    return list;
+}
 
-// STANDALONE
+int verifyPoints(HAND_T *cards){
+    int i,j,points=0,handPoints=0;
+    char* handName;
+    handName = malloc(sizeof(char)* 30);
+    HAND_T *pt_card, *hand, *aux;
+    pt_card=cards;
+    /*maos devem estar ordenadas por valor, ascendente*/
+    for(i=0; i<5; i++){
+        hand=pt_card;
+        for(j=0; j<4; j++)
+            pt_card=pt_card->next;
+        aux=pt_card->next;
+        pt_card->next=NULL;
+        handPoints=countPointsWithDescription(hand,handName);
+        points+=handPoints;
+        printf("%s (%d points)\n",handName,handPoints);
+        printHands(hand);
+        printf("\n");
+        pt_card->next=aux;
+        pt_card=pt_card->next;
+    }
+    return points;
+}
 
-//
-//MAO_T *criaListaCartas(){
-//    int cartas[52][2], i, seed=1;
-//    MAO_T *new, *listaCartas=NULL;
-//    criaBaralho(cartas);
-///*  embaralha(cartas, seed);*/
-//    for(i=0; i<25; i++){
-//        new = malloc(sizeof(MAO_T));
-//        new->valor=cartas[i][0];
-//        new->naipe=cartas[i][1];
-//        new->prox=listaCartas;
-//        listaCartas=new;
-//    }
-//    return listaCartas;
-//}
-//
-//int verificaPontos(MAO_T *cartas){
-//    int i,j,pontos=0;
-//    MAO_T *pt_carta, *mao, *aux;
-//    pt_carta=cartas;
-//    /*maos devem estar ordenadas por valor, ascendente*/
-//    for(i=0; i<5; i++){
-//        mao=pt_carta;
-//        for(j=0; j<4; j++)
-//            pt_carta=pt_carta->prox;
-//        aux=pt_carta->prox;
-//        pt_carta->prox=NULL;
-//        pontos+=contaPontos(mao);
-//        pt_carta->prox=aux;
-//        pt_carta=pt_carta->prox;
-//    }
-//    return pontos;
-//}
-//
-//MAO_T *jogarMaosPoquer(MAO_T *cartas ){
-//    /* seu codigo aqui */
-//
-//    return cartas;
-//}
-//
-//
-//int main(void)
-//{
-//    MAO_T *cartas;
-//    int pontos;
-//
-//    cartas=criaListaCartas();
-//    imprimeListaCartas(cartas);
-//    cartas=jogarMaosPoquer(cartas);
-//    pontos = verificaPontos(cartas);
-//    printf("Pontos: %d\n", pontos);
-//    exit(0);
-//}
-// FIM STANDALONE
+HAND_T *orderHands(HAND_T *hand){
+    /* seu codigo aqui */
+
+    int i,j,k;
+    HAND_T *diamond, *spade, *heart, *club;
+    HAND_T *copy, *aux, *aux2, *aux3, *aux4;
+    HAND_T **hand_addr;
+    HAND_T *sequence = NULL;
+    HAND_T *best_order = NULL;
+
+    char *handName;
+    handName = malloc(sizeof(char)*30);
+
+    bool *success;
+    success = malloc(sizeof(bool));
+    *success = false;
+
+    copy = copyHand(hand);
+
+    diamond = NULL;
+    spade = NULL;
+    heart = NULL;
+    club = NULL;
+
+
+    for (i=0;i<2;i++){
+        divideBySuit(copy,&diamond,&spade,&heart,&club);
+
+        for (j=0;j<4;j++){
+
+            hand_addr = NULL;
+            if (j==0) hand_addr = &diamond;
+            else if (j==1) hand_addr = &spade;
+            else if (j==2) hand_addr = &heart;
+            else if (j==3) hand_addr = &club;
+
+            if (i == 0){
+                // Search for Royal Straight Flush
+                checkForRoyalStraightFlash(hand_addr, &copy, &best_order);
+            } else if (i == 1){
+                // Search for Straight Flush
+                checkForStraightFlush(hand_addr, &copy, &best_order);
+            }
+        }
+    }
+
+    for (i=0;i<4;i++){
+        divideBySuit(copy,&diamond,&spade,&heart,&club);
+        hand_addr = NULL;
+        if (i==0) hand_addr = &diamond;
+        else if (i==1) hand_addr = &spade;
+        else if (i==2) hand_addr = &heart;
+        else if (i==3) hand_addr = &club;
+
+        while (countCardsInHand(*hand_addr) >= 4){
+            aux2 = getFirsts(*hand_addr, success, 4);
+
+            k = chooseBigerValid(countCardsInHand(diamond),
+                                 countCardsInHand(spade),
+                                 countCardsInHand(heart),
+                                 countCardsInHand(club),
+                                 j);
+
+            if (k==0) aux3 = diamond;
+            else if (k==1) aux3 = spade;
+            else if (k==2) aux3 = heart;
+            else aux3 = club;
+
+            aux4 = getFirsts(aux3,success,1);
+            subtractHandFromHand(&aux3,aux4);
+            subtractHandFromHand(hand_addr,aux2);
+
+            addHandToHand(&aux2,aux4);
+
+            //FIXME error here
+
+            subtractHandFromHand(&copy,aux2);
+
+            addHandToHand(&best_order,sortHand(aux2,true));
+
+        }
+    }
+
+
+    // Search for sequences
+    aux = sortHand(copyHand(copy),true);
+    while (searchForSequence(&aux,&sequence)){
+        subtractHandFromHand(&aux,sequence);
+        subtractHandFromHand(&copy,sequence);
+        addHandToHand(&best_order,sequence);
+    }
+
+    addHandToHand(&best_order,copy);
+    return best_order;
+}
+
+void checkForStraightFlush(HAND_T **hand_addr, HAND_T **copy, HAND_T **best_order) {
+    HAND_T *aux, *sequence;
+    aux = sortHand(copyHand(*hand_addr), true);
+    while(searchForSequence(&aux,&sequence)){
+        subtractHandFromHand(hand_addr,sequence);
+        subtractHandFromHand(copy, sequence);
+        addHandToHand(best_order, sequence);
+    }
+}
+
+void checkForRoyalStraightFlash(HAND_T **hand_addr, HAND_T **copy, HAND_T **best_order) {
+    HAND_T *aux;
+    bool success;
+    aux = sortHand(getFirsts(sortHandDec(*hand_addr, false), &success, 5), true);
+    if (success) {
+
+        if (countPoints(aux) == SCORE_ROYAL_STRAIGHT_FLUSH) {
+            subtractHandFromHand(copy, aux);
+            addHandToHand(best_order, aux);
+        }
+    }
+}
 
 void test() {
     int score;

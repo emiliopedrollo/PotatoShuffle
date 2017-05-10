@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 #include "deck.h"
 #include "utf8.h"
 
@@ -8,8 +9,6 @@ void printCard(CARD_T card){
     unsigned char  ch[UTF8_MAXLEN + 1];
     unsigned int   i;
     size_t         len;
-
-    i = 0x0001;
 
     switch (card.suit){
         case DIAMOND:
@@ -79,6 +78,7 @@ void createDeck(CARD_T **cards){
 void shuffle(CARD_T **cards, unsigned int seed){
     int i, j, aux_v;
     SUIT_T aux_n;
+    printf("Shuffling using seed %d\n",seed);
     /* EMBARALHAMENTO */
     srand(seed);
     for(i=0; i<DECK_SIZE; i++){
@@ -93,27 +93,34 @@ void shuffle(CARD_T **cards, unsigned int seed){
     return;
 }
 
+
+int countPoints(HAND_T *hand){
+    char* desc;
+    desc = malloc(sizeof(char)*30);
+    return countPointsWithDescription(hand,desc);
+}
+
 /* Conta os pontos de uma mao de 5 cartas, de acordo com as regras de pontuacao. */
 /* A mao deve vir ordenada, por value da carta, em ordem ascendente. */
 /* (IMPORTANTE: para fins desta ordenacao, o As vale 1) */
-int countPoints(HAND_T *mao){
+int countPointsWithDescription(HAND_T *hand,char* handName){
     HAND_T *ptrAux;
     int cont=0, flush=0, straight=0, royalStraight=0;
     int cont2=0;
 
     /* verifica Flush */
-    for(ptrAux = mao->next; ptrAux != NULL; ptrAux = ptrAux->next){
-        if(ptrAux->card.suit == mao->card.suit)
+    for(ptrAux = hand->next; ptrAux != NULL; ptrAux = ptrAux->next){
+        if(ptrAux->card.suit == hand->card.suit)
             cont ++;
     }
     if(cont == 4)
         flush = 1; /* é um flush */
 
     /* verifica Royal Straight */
-    ptrAux = mao;
+    ptrAux = hand;
     if(ptrAux->card.value == 1 && ptrAux->next->card.value == 10){
         /* somente pode ser royal se a 1a carta é ás e 2a é 10 */
-        for(ptrAux = mao->next, cont=0; ptrAux->next != NULL; ptrAux = ptrAux->next){
+        for(ptrAux = hand->next, cont=0; ptrAux->next != NULL; ptrAux = ptrAux->next){
             if(ptrAux->card.value == (ptrAux->next->card.value - 1))
                 cont ++;
         }
@@ -122,10 +129,13 @@ int countPoints(HAND_T *mao){
     }
 
     if(flush && royalStraight) /* mão é um royal straight flush */
-        return 1000;
+    {
+        strcpy(handName,"Royal Straight Flush");
+        return SCORE_ROYAL_STRAIGHT_FLUSH;
+    }
 
     /* verifica Straight simples */
-    for(ptrAux = mao, cont=0; ptrAux->next != NULL; ptrAux = ptrAux->next){
+    for(ptrAux = hand, cont=0; ptrAux->next != NULL; ptrAux = ptrAux->next){
         if(ptrAux->card.value == (ptrAux->next->card.value - 1))
             cont ++;
     }
@@ -133,17 +143,25 @@ int countPoints(HAND_T *mao){
         straight = 1; /* é um straight simples */
 
     if(flush && straight) /* mão é um straight flush */
-        return 750;
+    {
+        strcpy(handName,"Straight Flush");
+        return SCORE_STRAIGHT_FLUSH;
+    }
 
     if(royalStraight || straight) /* mão é um straight */
-        return 150;
-
+    {
+        strcpy(handName,"Straight");
+        return SCORE_STRAIGHT;
+    }
     if(flush) /* mão é flush */
-        return 200;
+    {
+        strcpy(handName,"Flush");
+        return SCORE_FLUSH;
+    }
 
     /* verifica pares, trincas e quadras */
     cont = cont2 = 0;
-    ptrAux = mao;
+    ptrAux = hand;
     while((ptrAux->next != NULL) && (ptrAux->card.value != ptrAux->next->card.value))
         ptrAux = ptrAux->next;
     while((ptrAux->next != NULL) && (ptrAux->card.value == ptrAux->next->card.value)){
@@ -165,17 +183,23 @@ int countPoints(HAND_T *mao){
     /* após normalizaçao, cont e cont2 podem ser usados para verificacao */
     switch(cont+cont2){
         case 5: /* mão é um full house */
-            return 250;
+            strcpy(handName,"Full house");
+            return SCORE_FULL_HOUSE;
         case 4: /* four ou dois pares */
-            if(cont == 4 || cont2 == 4)
-                return 500;
-            else
-                return 50;
+            if(cont == 4 || cont2 == 4) {
+                strcpy(handName, "4 of a kind");
+                return SCORE_FOUR_OF_A_KIND;
+            } else {
+                strcpy(handName, "Two Pairs");
+                return SCORE_TWO_PAIRS;
+            }
         case 3: /* trinca */
-            return 100;
+            strcpy(handName, "3 of a Kind");
+            return SCORE_THREE_OF_A_KIND;
         case 2: /* par simples */
-            return 20;
+            strcpy(handName, "Pair");
+            return SCORE_PAIR;
     }
-    return 0;
+    strcpy(handName, "High Card");
+    return SCORE_HIGH_CARD;
 }
-
