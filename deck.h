@@ -1,7 +1,3 @@
-//
-// Created by ncc on 09/05/17.
-//
-
 #ifndef POTATOSHUFFLE_DECK_H
 
 #define DECK_SIZE	52
@@ -42,4 +38,4 @@ int countPointsWithDescription(HAND_T *hand,char* handName);
 
 #define POTATOSHUFFLE_DECK_H
 
-#endif //POTATOSHUFFLE_DECK_H
+#endif

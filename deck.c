@@ -30,7 +30,7 @@ void printCard(CARD_T card){
             break;
     }
 
-    if (card.value > 11) i++; // skip knight card
+    if (card.value > 11) i++; /* skip knight card */
 
     len = code_to_utf8(ch, i);
     if (len > 0) {

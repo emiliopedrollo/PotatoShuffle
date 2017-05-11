@@ -1,8 +1,3 @@
-//
-// Created by emilio on 10/05/17.
-//
-
-#include <lzma.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "utils.h"
@@ -222,11 +217,12 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
 
     iterable = copyHand(*hand);
     first = iterable;
-    
+
+    last = iterable->card.value;
     while (iterable != NULL){
 
         if (iterable->card.value == last) {
-            //nothing happens
+            /*nothing happens*/
         } else if (iterable->card.value == last+1){
             k++;
             if (s == -1) s = i;
@@ -235,7 +231,7 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
             s = -1;
         }
 
-        if (k == 5) {
+        if (k == 4) {
             break;
         }
 
@@ -243,13 +239,13 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
         iterable = iterable->next;
         i++;
     }    
-    if (k!=5){
+    if (k!=4){
         return false;
     }
     
     iterable = first;
     
-    while(s > 0){
+    while(s > 1){
         iterable = iterable->next;
         s--;
     }
@@ -259,7 +255,7 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
     (*sequence)->next = NULL;
     sequenceIterable = (*sequence);
     iterable = iterable->next;
-    while ((k > 1) && (iterable != NULL)){
+    while ((k > 0) && (iterable != NULL)){
         if (iterable->card.value != sequenceIterable->card.value){
             new = malloc(sizeof(HAND_T));
             new->card = iterable->card;
@@ -315,6 +311,8 @@ HAND_T *subtractHandFromHand(HAND_T **hand, HAND_T *toRemove){
 HAND_T *subtractCardFromHand(HAND_T **hand,CARD_T card){
     HAND_T *aux,*aux2;
     aux = *hand;
+
+    if ((*hand) == NULL) return NULL;
 
     if ((*hand)->card.value == card.value && (*hand)->card.suit == card.suit){
         *hand = (*hand)->next;
