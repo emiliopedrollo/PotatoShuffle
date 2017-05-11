@@ -1,6 +1,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "utils.h"
+#include "main.h"
+
+int high_score = 0;
 
 void bubbleSort(HAND_T *cards, bool aceIsOne, bool (*func)(int, int, bool)) {
     int i;
@@ -279,4 +282,47 @@ HAND_T *subtractCardFromHand(HAND_T **hand,CARD_T card){
 
     return *hand;
 
+}
+
+/* Function to swap values at two pointers */
+void swap(func *x, func *y)
+{
+    func temp;
+    temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
+/* Function to print permutations of string
+   This function takes three parameters:
+   1. String
+   2. Starting index of the string
+   3. Ending index of the string. */
+void permute(func *a, int l, int r,HAND_T **hand, HAND_T **best_order)
+{
+    int i,j=0,score;
+    HAND_T *copy;
+    if (l == r){
+        j=0;
+        copy = copyHand(*hand);
+        while (j <= r){
+            a[j++](&copy,best_order);
+        }
+        addHandToHand(best_order,copy);
+        score = verifyPoints(*best_order,false);
+        if (score > high_score){
+            high_score = score;
+            best_hand = copyHand(*best_order);
+            best_hand_leftover = copy;
+        }
+    }
+    else
+    {
+        for (i = l; i <= r; i++)
+        {
+            swap((a+l), (a+i));
+            permute(a, l+1, r,hand,best_order);
+            swap((a+l), (a+i)); /*backtrack*/
+        }
+    }
 }

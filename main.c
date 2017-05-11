@@ -3,12 +3,12 @@
 #include <locale.h>
 #include <time.h>
 #include <stdbool.h>
+#include "main.h"
 #include "deck.h"
 #include "utils.h"
 
 void test();
 HAND_T *createHands(unsigned int seed);
-int verifyPoints(HAND_T *cards, bool display);
 HAND_T *orderHands(HAND_T *hand);
 void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order);
 void checkForStraightFlush(HAND_T **hand, HAND_T **best_order);
@@ -19,6 +19,18 @@ void checkForStraight(HAND_T **hand, HAND_T **best_order);
 void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order);
 void checkForTwoPairs(HAND_T **hand, HAND_T **best_order);
 void checkForPair(HAND_T **hand, HAND_T **best_order);
+
+
+
+
+func steps[6] = {
+        checkForRoyalStraightFlash,
+        checkForStraightFlush,
+        checkForFourOfAKind,
+        checkForFullHouse,
+        checkForFlush,
+        checkForStraight,
+};
 
 int main() {
 
@@ -102,6 +114,16 @@ HAND_T *orderHands(HAND_T *hand){
 
     HAND_T *best_order = NULL;
 
+
+    permute(steps,0,5,&hand,&best_order);
+
+    checkForThreeOfAKind(&best_hand_leftover, &best_hand);
+    checkForTwoPairs(&best_hand_leftover, &best_hand);
+    checkForPair(&best_hand_leftover, &best_hand);
+
+    return best_hand;
+
+/*
     checkForRoyalStraightFlash(&hand, &best_order);
     checkForStraightFlush(&hand, &best_order);
     checkForFourOfAKind(&hand, &best_order);
@@ -115,6 +137,7 @@ HAND_T *orderHands(HAND_T *hand){
 
     addHandToHand(&best_order,hand);
     return best_order;
+*/
 }
 
 void checkForPair(HAND_T **hand, HAND_T **best_order) {
@@ -290,7 +313,6 @@ void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
     int i;
     HAND_T *aux, **addr = NULL;
     HAND_T *diamond, *spade, *heart, *club;
-
 
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
 
