@@ -5,6 +5,7 @@
 
 typedef void (*func)(HAND_T **hand, HAND_T **best_order);
 
+void free_hand(HAND_T **hand);
 void divideBySuit(HAND_T *hand, HAND_T **diamonds, HAND_T **spades, HAND_T **hearts, HAND_T **clubs);
 int countCardsInHand(HAND_T *hand);
 bool searchForSequence(HAND_T **hand, HAND_T **sequence);

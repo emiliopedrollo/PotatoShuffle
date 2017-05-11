@@ -43,6 +43,7 @@ int main() {
     srand((unsigned int) time(NULL));
 
     /* GOOD SEEDS */
+    /* 87132968    - 820  score */
     /* 1028929438  - 2700 score */
     /* 1535832847  - 2750 score */
     /* 1133152313  - 2900 score */
@@ -121,6 +122,7 @@ HAND_T *orderHands(HAND_T *hand){
     checkForTwoPairs(&best_hand_leftover, &best_hand);
     checkForPair(&best_hand_leftover, &best_hand);
 
+    addHandToHand(&best_hand,best_hand_leftover);
     return best_hand;
 
 /*
@@ -141,17 +143,155 @@ HAND_T *orderHands(HAND_T *hand){
 }
 
 void checkForPair(HAND_T **hand, HAND_T **best_order) {
-    /*TODO*/
+    int i,j,k;
+    HAND_T *aux = NULL, *aux2, *aux3;
+    HAND_T *iterable;
+    bool foundExtra;
+
+
+    for (i=1;i<14;i++){
+        k = 0;
+        iterable = *hand;
+        aux = NULL;
+        while (iterable != NULL){
+            if (iterable->card.value == i) {
+                addHandToHand(&aux, getFirsts(iterable, 1));
+                k++;
+            }
+            iterable = iterable->next;
+        }
+        for(j=k/2;j>0;j--){
+            iterable = *hand;
+            foundExtra = false;
+            k = 0;
+            aux3 = NULL;
+            aux2 = getFirsts(aux, 2);
+            while (iterable != NULL){
+                if (iterable->card.value != i){
+                    addHandToHand(&aux3, getFirsts(iterable, 1));
+                    if (++k == 3){
+                        addHandToHand(&aux2,aux3);
+                        foundExtra = true;
+                        break;
+                    }
+                }
+                iterable = iterable->next;
+            }
+            if (foundExtra){
+                subtractHandFromHand(&aux,aux2);
+                subtractHandFromHand(hand, aux2);
+                addHandToHand(best_order, sortHand(aux2,true));
+            }
+
+        }
+    }
 }
 
 
 void checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
-    /*TODO*/
+    int i,j,k,l;
+    HAND_T *aux = NULL, *aux2 = NULL, *aux3 = NULL;
+    HAND_T *iterable;
+    bool foundExtraPair,foundExtra;
+
+    for (i=1;i<14;i++) {
+        k = 0;
+        iterable = *hand;
+        aux = NULL;
+        while (iterable != NULL) {
+            if (iterable->card.value == i) {
+                addHandToHand(&aux, getFirsts(iterable, 1));
+                k++;
+            }
+            iterable = iterable->next;
+        }
+        for(j=k/2;j>0;j--){
+            foundExtra = false;
+            for(l=1;l<14;l++) {
+                if (l==i) continue;
+                iterable = *hand;
+                foundExtra = false;
+                foundExtraPair = false;
+                k = 0;
+                aux3 = NULL;
+                aux2 = getFirsts(aux, 2);
+                while (iterable != NULL) {
+                    if (iterable->card.value == l) {
+                        addHandToHand(&aux3, getFirsts(iterable, 1));
+                        if (++k == 2) {
+                            addHandToHand(&aux2, aux3);
+                            foundExtraPair = true;
+                            break;
+                        }
+                    }
+                    iterable = iterable->next;
+                }
+                if (foundExtraPair){
+                    iterable = *hand;
+                    while (iterable != NULL){
+                        if (iterable->card.value != i && iterable->card.value != l){
+                            addHandToHand(&aux2, getFirsts(iterable, 1));
+                            foundExtra = true;
+                            break;
+                        }
+                        iterable = iterable->next;
+                    }
+                }
+                if (foundExtra) break;
+            }
+            if (foundExtra){
+                subtractHandFromHand(&aux,aux2);
+                subtractHandFromHand(hand,aux2);
+                addHandToHand(best_order, sortHand(aux2,true));
+            }
+        }
+    }
 }
 
 
 void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
-    /*TODO*/
+    int i,j,k;
+    HAND_T *aux = NULL, *aux2, *aux3;
+    HAND_T *iterable;
+    bool foundExtra;
+
+
+    for (i=1;i<14;i++){
+        k = 0;
+        iterable = *hand;
+        aux = NULL;
+        while (iterable != NULL){
+            if (iterable->card.value == i) {
+                addHandToHand(&aux, getFirsts(iterable, 1));
+                k++;
+            }
+            iterable = iterable->next;
+        }
+        for(j=k/3;j>0;j--){
+            iterable = *hand;
+            foundExtra = false;
+            k = 0;
+            aux3 = NULL;
+            aux2 = getFirsts(aux, 3);
+            while (iterable != NULL){
+                if (iterable->card.value != i){
+                    addHandToHand(&aux3, getFirsts(iterable, 1));
+                    if (++k == 2){
+                        addHandToHand(&aux2,aux3);
+                        foundExtra = true;
+                        break;
+                    }
+                }
+                iterable = iterable->next;
+            }
+            if (foundExtra){
+                subtractHandFromHand(&aux,aux2);
+                subtractHandFromHand(hand, aux2);
+                addHandToHand(best_order, sortHand(aux2,true));
+            }
+
+        }
+    }
 }
 
 void checkForStraight(HAND_T **hand, HAND_T **best_order) {

@@ -284,6 +284,17 @@ HAND_T *subtractCardFromHand(HAND_T **hand,CARD_T card){
 
 }
 
+void free_hand(HAND_T **hand){
+    HAND_T *next;
+    if (*hand == NULL) return;
+
+    while(*hand != NULL){
+        next = (*hand)->next;
+        free(*hand);
+        *hand = next;
+    }
+}
+
 /* Function to swap values at two pointers */
 void swap(func *x, func *y)
 {
@@ -301,20 +312,24 @@ void swap(func *x, func *y)
 void permute(func *a, int l, int r,HAND_T **hand, HAND_T **best_order)
 {
     int i,j=0,score;
-    HAND_T *copy;
+    HAND_T *copy,*copy2;
     if (l == r){
         j=0;
         copy = copyHand(*hand);
         while (j <= r){
             a[j++](&copy,best_order);
         }
-        addHandToHand(best_order,copy);
-        score = verifyPoints(*best_order,false);
+        copy2 = copyHand(*best_order);
+        addHandToHand(&copy2,copy);
+        score = verifyPoints(copy2,false);
         if (score > high_score){
             high_score = score;
             best_hand = copyHand(*best_order);
-            best_hand_leftover = copy;
+            best_hand_leftover = copyHand(copy);
         }
+        free_hand(best_order);
+        free_hand(&copy);
+        free_hand(&copy2);
     }
     else
     {
