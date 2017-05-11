@@ -23,7 +23,7 @@ Para compilar basta ir até a pasta contendo o fonte e executar
 ```sh
 cmake . && make
 ```
-O compilador é esta instruído a utilizar o padrão C *ansi* para este projeto. Após a compilação o executável **ppm** estará na mesma pasta com os códigos-fonte.
+O compilador é esta instruído a utilizar o padrão C *ansi* para este projeto. Após a compilação o executável **shuffle** estará na mesma pasta com os códigos-fonte.
 
 
 ### Utilizando gcc
