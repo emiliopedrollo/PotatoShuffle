@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "utils.h"
-#include "deck.h"
 
 void bubbleSort(HAND_T *cards, bool aceIsOne, bool (*func)(int, int, bool)) {
     int i;
@@ -70,59 +69,9 @@ HAND_T *addHandLast(HAND_T **cards, CARD_T card) {
     return *cards;
 }
 
-int biggerOfThree(int num1, int num2, int num3){
-    if (num1 > num2){
-        if (num1 > num3)
-            return 0;
-        else
-            return 2;
-    } else if (num2 > num3)
-        return 1;
-    else
-        return 2;
-}
-
-int chooseBigerValid(int a,int b, int c, int d, int invalid){
-    int bigger;
-    if (invalid == 0){
-        bigger = biggerOfThree(b,c,d);
-        if (bigger==0)
-            return 1;
-        else if (bigger==1)
-            return 2;
-        else
-            return 3;
-    } else if (invalid == 1){
-        bigger = biggerOfThree(a,c,d);
-        if (bigger==0)
-            return 0;
-        else if (bigger==1)
-            return 2;
-        else
-            return 3;
-    } else if (invalid == 2){
-        bigger = biggerOfThree(a,b,d);
-        if (bigger==0)
-            return 0;
-        else if (bigger==1)
-            return 1;
-        else
-            return 3;
-    } else {
-        bigger = biggerOfThree(a,b,c);
-        if (bigger==0)
-            return 0;
-        else if (bigger==1)
-            return 1;
-        else
-            return 2;
-    }
-}
-
-HAND_T *getFirsts(HAND_T *cards, bool *success, int count) {
+HAND_T *getFirsts(HAND_T *cards, int count) {
     HAND_T *result = NULL, *aux;
     int k = 0;
-    *success = false;
     if (cards == NULL) return NULL;
 
     aux = cards;
@@ -131,7 +80,6 @@ HAND_T *getFirsts(HAND_T *cards, bool *success, int count) {
         addHandLast(&result,aux->card);
         aux = aux->next;
     }
-    *success = (k == count);
     return result;
 }
 

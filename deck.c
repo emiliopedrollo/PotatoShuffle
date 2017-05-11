@@ -78,7 +78,6 @@ void createDeck(CARD_T **cards){
 void shuffle(CARD_T **cards, unsigned int seed){
     int i, j, aux_v;
     SUIT_T aux_n;
-    printf("Shuffling using seed %d\n",seed);
     /* EMBARALHAMENTO */
     srand(seed);
     for(i=0; i<DECK_SIZE; i++){

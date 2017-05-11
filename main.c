@@ -7,8 +7,8 @@
 #include "utils.h"
 
 void test();
-HAND_T *createHands();
-int verifyPoints(HAND_T *cards);
+HAND_T *createHands(unsigned int seed);
+int verifyPoints(HAND_T *cards, bool display);
 HAND_T *orderHands(HAND_T *hand);
 void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order);
 void checkForStraightFlush(HAND_T **hand, HAND_T **best_order);
@@ -16,45 +16,51 @@ void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order);
 void checkForFullHouse(HAND_T **hand, HAND_T **best_order);
 void checkForFlush(HAND_T **hand, HAND_T **best_order);
 void checkForStraight(HAND_T **hand, HAND_T **best_order);
+void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order);
+void checkForTwoPairs(HAND_T **hand, HAND_T **best_order);
+void checkForPair(HAND_T **hand, HAND_T **best_order);
 
 int main() {
 
-/*    CARD_T **cards;
-//    cards = malloc(DECK_SIZE * sizeof (CARD_T));
-//
-//    printf("Criando baralho padrão.\n");
-//    createDeck(cards);
-//    printDeck(cards);
-//
-//    printf("\nEmbaralhando com semente %d.\n", SEED);
-//    shuffle(cards, SEED);
-//    printDeck(cards);  */
-
-
     HAND_T *cards;
-    int points;
+    int score;
+    unsigned int seed;
 
-    cards=createHands();
+    /*test();*/
+
+    srand((unsigned int) time(NULL));
+
+    /* GOOD SEEDS */
+    /* 1028929438  - 2700 score */
+    /* 1535832847  - 2750 score */
+    /* 1133152313  - 2900 score */
+    /* 1586328659  - 2970 score */
+    /* 2109996363  - 3250 score */
+    /* 1861052978  - 3270 score */
+    /* 570931470   - 3300 score */
+
+    seed = (unsigned int) rand();
+    printf("Shuffling using seed %d\n",seed);
+    cards=createHands(seed);
     /*printHands(cards);*/
     printf("\n");
     cards= orderHands(cards);
-    points = verifyPoints(cards);
-    printf("Pontos: %d\n", points);
+    score = verifyPoints(cards, true);
+
+    printf("Score: %d\n", score);
+
 
 
     exit(0);
 }
 
-HAND_T *createHands(){
+HAND_T *createHands(unsigned int seed){
     int i;
-    unsigned int seed=1;
-    srand((unsigned int) time(NULL));
     CARD_T **cards;
     HAND_T *new, *list=NULL;
     cards = malloc(DECK_SIZE * sizeof(cards));
     createDeck(cards);
-    shuffle(cards, 1028929438); /*RSF*/
-    /*shuffle(cards, (unsigned int) rand());*/
+    shuffle(cards, seed);
     for(i=0; i<25; i++){
         new = malloc(sizeof(HAND_T));
         new->card.value=cards[i]->value;
@@ -65,7 +71,7 @@ HAND_T *createHands(){
     return list;
 }
 
-int verifyPoints(HAND_T *cards){
+int verifyPoints(HAND_T *cards, bool display) {
     int i,j,points=0,handPoints=0;
     char* handName;
     handName = malloc(sizeof(char)* 30);
@@ -80,9 +86,11 @@ int verifyPoints(HAND_T *cards){
         pt_card->next=NULL;
         handPoints=countPointsWithDescription(hand,handName);
         points+=handPoints;
-        printHands(hand);
-        printf(" %s (%d points)\n",handName,handPoints);
-        printf("\n");
+        if (display){
+            printHands(hand);
+            printf(" %s (%d points)\n",handName,handPoints);
+            printf("\n");
+        }
         pt_card->next=aux;
         pt_card=pt_card->next;
     }
@@ -100,9 +108,27 @@ HAND_T *orderHands(HAND_T *hand){
     checkForFullHouse(&hand, &best_order);
     checkForFlush(&hand, &best_order);
     checkForStraight(&hand, &best_order);
+    checkForThreeOfAKind(&hand, &best_order);
+    checkForTwoPairs(&hand, &best_order);
+    checkForPair(&hand, &best_order);
+
 
     addHandToHand(&best_order,hand);
     return best_order;
+}
+
+void checkForPair(HAND_T **hand, HAND_T **best_order) {
+    /*TODO*/
+}
+
+
+void checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
+    /*TODO*/
+}
+
+
+void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
+    /*TODO*/
 }
 
 void checkForStraight(HAND_T **hand, HAND_T **best_order) {
@@ -119,7 +145,6 @@ void checkForStraight(HAND_T **hand, HAND_T **best_order) {
 void checkForFlush(HAND_T **hand, HAND_T **best_order) {
 
     int i,j;
-    bool success;
     HAND_T *aux, *sequence, **addr = NULL;
     HAND_T *diamond, *spade, *heart, *club;
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
@@ -132,7 +157,7 @@ void checkForFlush(HAND_T **hand, HAND_T **best_order) {
 
         for (j = countCardsInHand(*addr) / 5; j> 0 ; j--){
 
-            aux = getFirsts(*addr,&success,5);
+            aux = getFirsts(*addr, 5);
 
             subtractHandFromHand(addr, aux);
             subtractHandFromHand(hand, aux);
@@ -150,7 +175,7 @@ void checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
     int i,j,k,l;
     HAND_T *aux = NULL, *aux2, *aux3;
     HAND_T *iterable;
-    bool success,foundExtra;
+    bool foundExtra;
 
 
     for (i=1;i<14;i++){
@@ -159,14 +184,14 @@ void checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
         aux = NULL;
         while (iterable != NULL){
             if (iterable->card.value == i) {
-                addHandToHand(&aux,getFirsts(iterable,&success,1));
+                addHandToHand(&aux, getFirsts(iterable, 1));
                 k++;
             }
             iterable = iterable->next;
         }
         for(j=k/3;j>0;j--){
             foundExtra = false;
-            aux2 = getFirsts(aux,&success,3);
+            aux2 = getFirsts(aux, 3);
             for(l=1;l<14;l++){
                 if (l==i)continue;
                 k=0;
@@ -174,7 +199,7 @@ void checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
                 iterable = *hand;
                 while (iterable != NULL){
                     if (iterable->card.value == l){
-                        addHandToHand(&aux3,getFirsts(iterable,&success,1));
+                        addHandToHand(&aux3, getFirsts(iterable, 1));
                         if (++k == 2){
                             addHandToHand(&aux2,aux3);
                             foundExtra = true;
@@ -199,7 +224,7 @@ void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
     int i,j,k;
     HAND_T *aux = NULL, *aux2;
     HAND_T *iterable;
-    bool success,foundExtra;
+    bool foundExtra;
 
 
     for (i=1;i<14;i++){
@@ -208,7 +233,7 @@ void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
         aux = NULL;
         while (iterable != NULL){
             if (iterable->card.value == i) {
-                addHandToHand(&aux,getFirsts(iterable,&success,1));
+                addHandToHand(&aux, getFirsts(iterable, 1));
                 k++;
             }
             iterable = iterable->next;
@@ -216,10 +241,10 @@ void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
         for(j=k/4;j>0;j--){
             iterable = *hand;
             foundExtra = false;
-            aux2 = getFirsts(aux,&success,4);
+            aux2 = getFirsts(aux, 4);
             while (iterable != NULL){
                 if (iterable->card.value != i){
-                    addHandToHand(&aux2,getFirsts(iterable,&success,1));
+                    addHandToHand(&aux2, getFirsts(iterable, 1));
                     foundExtra = true;
                     break;
                 }
@@ -264,7 +289,6 @@ void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
 
     int i;
     HAND_T *aux, **addr = NULL;
-    bool success;
     HAND_T *diamond, *spade, *heart, *club;
 
 
@@ -276,8 +300,8 @@ void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
         else if (i==2) addr = &heart;
         else if (i==3) addr = &club;
 
-        aux = sortHand(getFirsts(sortHandDec(*addr, false), &success, 5), true);
-        if (success) {
+        aux = sortHand(getFirsts(sortHandDec(*addr, false), 5), true);
+        if (countCardsInHand(aux) == 5) {
 
             if (countPoints(aux) == SCORE_ROYAL_STRAIGHT_FLUSH) {
                 subtractHandFromHand(hand, aux);
@@ -288,6 +312,7 @@ void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
 }
 
 void test() {
+
     int score;
     HAND_T c1, c2, c3, c4, c5;
     printf("\nTeste de Royal straight flush.\n");
