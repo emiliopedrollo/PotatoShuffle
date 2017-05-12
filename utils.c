@@ -89,10 +89,10 @@ HAND_T *getFirsts(HAND_T *cards, int count) {
 void divideBySuit(HAND_T *hand, HAND_T **diamonds, HAND_T **spades, HAND_T **hearts, HAND_T **clubs){
     HAND_T *iterable = hand, **aux_addr = NULL, *aux, *aux2;
 
-    *diamonds = NULL;
-    *spades = NULL;
-    *hearts = NULL;
-    *clubs = NULL;
+    free_hand(diamonds);
+    free_hand(spades);
+    free_hand(hearts);
+    free_hand(clubs);
 
     while(iterable){
         switch (iterable->card.suit){
@@ -159,7 +159,7 @@ int countCardsInHand(HAND_T *hand){
 
 bool searchForSequence(HAND_T **hand, HAND_T **sequence){
     int i = 0,k = 0,s = -1;
-    int last = 0;
+    int lastValue = 0;
     HAND_T *iterable, *first, *new, *sequenceIterable;
 
     if (*hand == NULL) return false;
@@ -169,12 +169,12 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
     iterable = copyHand(*hand);
     first = iterable;
 
-    last = iterable->card.value;
+    lastValue = iterable->card.value;
     while (iterable != NULL){
 
-        if (iterable->card.value == last) {
+        if (iterable->card.value == lastValue) {
             /*nothing happens*/
-        } else if (iterable->card.value == last+1){
+        } else if (iterable->card.value == lastValue+1){
             k++;
             if (s == -1) s = i;
         } else {
@@ -186,7 +186,7 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
             break;
         }
 
-        last = iterable->card.value;
+        lastValue = iterable->card.value;
         iterable = iterable->next;
         i++;
     }    
@@ -216,6 +216,7 @@ bool searchForSequence(HAND_T **hand, HAND_T **sequence){
         }
         iterable = iterable->next;
     }
+    free_hand(&first);
 
     return true;
 }

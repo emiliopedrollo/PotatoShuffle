@@ -127,6 +127,7 @@ HAND_T *orderHands(HAND_T *hand){
     permute(steps,0,k-1,hand,&best_order);
 
     addHandToHand(&best_hand,best_hand_leftover);
+    free_hand(&best_hand_leftover);
     return best_hand;
 
 }
@@ -173,8 +174,10 @@ bool checkForPair(HAND_T **hand, HAND_T **best_order) {
                 addHandToHand(best_order, sortHand(aux2,true));
                 result = true;
             }
-
+            free_hand(&aux2);
+            free_hand(&aux3);
         }
+        free_hand(&aux);
     }
     return result;
 }
@@ -207,6 +210,7 @@ bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
                 foundExtraPair = false;
                 k = 0;
                 aux3 = NULL;
+                free_hand(&aux2);
                 aux2 = getFirsts(aux, 2);
                 while (iterable != NULL) {
                     if (iterable->card.value == l) {
@@ -219,6 +223,7 @@ bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
                     }
                     iterable = iterable->next;
                 }
+                free_hand(&aux3);
                 if (foundExtraPair){
                     iterable = *hand;
                     while (iterable != NULL){
@@ -238,7 +243,9 @@ bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
                 addHandToHand(best_order, sortHand(aux2,true));
                 result = true;
             }
+            free_hand(&aux2);
         }
+        free_hand(&aux);
     }
     return result;
 }
@@ -286,8 +293,10 @@ bool checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
                 addHandToHand(best_order, sortHand(aux2,true));
                 result = true;
             }
-
+            free_hand(&aux2);
+            free_hand(&aux3);
         }
+        free_hand(&aux);
     }
 
     return result;
@@ -302,8 +311,10 @@ bool checkForStraight(HAND_T **hand, HAND_T **best_order) {
         subtractHandFromHand(&aux,sequence);
         subtractHandFromHand(hand, sequence);
         addHandToHand(best_order, sequence);
+        free_hand(&sequence);
         result = true;
     }
+    free_hand(&aux);
 
 
     return result;
@@ -314,7 +325,8 @@ bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
     int i,j;
     bool result = false;
     HAND_T *aux, **addr = NULL;
-    HAND_T *diamond, *spade, *heart, *club;
+    HAND_T *diamond = NULL, *spade = NULL, *heart = NULL, *club = NULL;
+
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
 
     for(i=0;i<4;i++) {
@@ -330,10 +342,18 @@ bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
             subtractHandFromHand(addr, aux);
             subtractHandFromHand(hand, aux);
             addHandToHand(best_order, sortHand(aux,true));
+            free_hand(&aux);
+
             result = true;
 
         }
     }
+
+
+    free_hand(&diamond);
+    free_hand(&spade);
+    free_hand(&heart);
+    free_hand(&club);
 
     return result;
 }
@@ -376,6 +396,7 @@ bool checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
                     }
                     iterable = iterable->next;
                 }
+                free_hand(&aux3);
                 if (foundExtra) break;
             }
             if (foundExtra){
@@ -384,8 +405,9 @@ bool checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
                 addHandToHand(best_order, sortHand(aux2,true));
                 result = true;
             }
-
+            free_hand(&aux2);
         }
+        free_hand(&aux);
     }
 
     return result;
@@ -428,8 +450,10 @@ bool checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
                 addHandToHand(best_order, sortHand(aux2,true));
                 result = true;
             }
+            free_hand(&aux2);
 
         }
+        free_hand(&aux);
     }
 
     return result;
@@ -441,8 +465,7 @@ bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
     int i;
     bool result = false;
     HAND_T *aux, *sequence, **addr = NULL;
-    HAND_T *diamond, *spade, *heart, *club;
-
+    HAND_T *diamond = NULL, *spade = NULL, *heart = NULL, *club = NULL;
 
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
 
@@ -457,9 +480,16 @@ bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
             subtractHandFromHand(&aux, sequence);
             subtractHandFromHand(hand, sequence);
             addHandToHand(best_order, sequence);
+            free_hand(&sequence);
             result = true;
         }
+        free_hand(&aux);
     }
+
+    free_hand(&diamond);
+    free_hand(&spade);
+    free_hand(&heart);
+    free_hand(&club);
 
     return result;
 }
@@ -469,7 +499,7 @@ bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
     int i;
     bool result = false;
     HAND_T *aux, **addr = NULL;
-    HAND_T *diamond, *spade, *heart, *club;
+    HAND_T *diamond = NULL, *spade = NULL, *heart = NULL, *club = NULL;
 
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
 
@@ -488,7 +518,13 @@ bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
                 result = true;
             }
         }
+        free_hand(&aux);
     }
+
+    free_hand(&diamond);
+    free_hand(&spade);
+    free_hand(&heart);
+    free_hand(&club);
 
     return result;
 }
