@@ -198,7 +198,6 @@ bool checkForPair(HAND_T **hand, HAND_T **best_order) {
 
 }
 
-
 bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
 
     int i, j, k, l;
@@ -268,7 +267,6 @@ bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
     return result;
 
 }
-
 
 bool checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
 
