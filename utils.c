@@ -296,9 +296,9 @@ void free_hand(HAND_T **hand){
 }
 
 /* Function to swap values at two pointers */
-void swap(func *x, func *y)
+void swap(check *x, check *y)
 {
-    func temp;
+    check temp;
     temp = *x;
     *x = *y;
     *y = temp;
@@ -309,13 +309,13 @@ void swap(func *x, func *y)
    1. String
    2. Starting index of the string
    3. Ending index of the string. */
-void permute(func *a, int l, int r,HAND_T **hand, HAND_T **best_order)
+void permute(check *a, int l, int r, HAND_T *hand, HAND_T **best_order)
 {
     int i,j=0,score;
     HAND_T *copy,*copy2;
     if (l == r){
         j=0;
-        copy = copyHand(*hand);
+        copy = copyHand(hand);
         while (j <= r){
             a[j++](&copy,best_order);
         }
@@ -324,6 +324,8 @@ void permute(func *a, int l, int r,HAND_T **hand, HAND_T **best_order)
         score = verifyPoints(copy2,false);
         if (score > high_score){
             high_score = score;
+            free_hand(&best_hand);
+            free_hand(&best_hand_leftover);
             best_hand = copyHand(*best_order);
             best_hand_leftover = copyHand(copy);
         }

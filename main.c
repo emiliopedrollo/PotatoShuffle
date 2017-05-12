@@ -4,32 +4,31 @@
 #include <time.h>
 #include <stdbool.h>
 #include "main.h"
-#include "deck.h"
 #include "utils.h"
 
 void test();
 HAND_T *createHands(unsigned int seed);
 HAND_T *orderHands(HAND_T *hand);
-void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order);
-void checkForStraightFlush(HAND_T **hand, HAND_T **best_order);
-void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order);
-void checkForFullHouse(HAND_T **hand, HAND_T **best_order);
-void checkForFlush(HAND_T **hand, HAND_T **best_order);
-void checkForStraight(HAND_T **hand, HAND_T **best_order);
-void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order);
-void checkForTwoPairs(HAND_T **hand, HAND_T **best_order);
-void checkForPair(HAND_T **hand, HAND_T **best_order);
+bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order);
+bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order);
+bool checkForFourOfAKind(HAND_T **hand, HAND_T **best_order);
+bool checkForFullHouse(HAND_T **hand, HAND_T **best_order);
+bool checkForFlush(HAND_T **hand, HAND_T **best_order);
+bool checkForStraight(HAND_T **hand, HAND_T **best_order);
+bool checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order);
+bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order);
+bool checkForPair(HAND_T **hand, HAND_T **best_order);
 
-
-
-
-func steps[6] = {
+check checks[9] = {
         checkForRoyalStraightFlash,
         checkForStraightFlush,
         checkForFourOfAKind,
         checkForFullHouse,
         checkForFlush,
         checkForStraight,
+        checkForThreeOfAKind,
+        checkForTwoPairs,
+        checkForPair
 };
 
 int main() {
@@ -43,14 +42,15 @@ int main() {
     srand((unsigned int) time(NULL));
 
     /* GOOD SEEDS */
-    /* 87132968    - 820  score */
-    /* 1028929438  - 2700 score */
-    /* 1535832847  - 2750 score */
-    /* 1133152313  - 2900 score */
-    /* 1586328659  - 2970 score */
-    /* 2109996363  - 3250 score */
-    /* 1861052978  - 3270 score */
-    /* 570931470   - 3300 score */
+    /* 87132968    - 820  score                      */
+    /* 1130123366  - 1670 score (RSF now worthy)     */
+    /* 1028929438  - 2700 score                      */
+    /* 1535832847  - 2750 score                      */
+    /* 1133152313  - 2900 score                      */
+    /* 1586328659  - 2970 score                      */
+    /* 2109996363  - 3250 score                      */
+    /* 1861052978  - 3270 score                      */
+    /* 570931470   - 3300 score                      */
 
     seed = (unsigned int) rand();
     printf("Shuffling using seed %d\n",seed);
@@ -112,41 +112,33 @@ int verifyPoints(HAND_T *cards, bool display) {
 
 HAND_T *orderHands(HAND_T *hand){
     /* seu codigo aqui */
+    int i, k = 0;
+    HAND_T *best_order = NULL, *copy;
 
-    HAND_T *best_order = NULL;
+    check steps[9] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 
+    for (i=0;i<9;i++){
+        copy = copyHand(hand);
+        if (checks[i](&copy,&best_order)){
+            steps[k++] = checks[i];
+        }
+        free_hand(&copy);
+        free_hand(&best_order);
+    }
 
-    permute(steps,0,5,&hand,&best_order);
-
-    checkForThreeOfAKind(&best_hand_leftover, &best_hand);
-    checkForTwoPairs(&best_hand_leftover, &best_hand);
-    checkForPair(&best_hand_leftover, &best_hand);
+    permute(steps,0,k-1,hand,&best_order);
 
     addHandToHand(&best_hand,best_hand_leftover);
     return best_hand;
 
-/*
-    checkForRoyalStraightFlash(&hand, &best_order);
-    checkForStraightFlush(&hand, &best_order);
-    checkForFourOfAKind(&hand, &best_order);
-    checkForFullHouse(&hand, &best_order);
-    checkForFlush(&hand, &best_order);
-    checkForStraight(&hand, &best_order);
-    checkForThreeOfAKind(&hand, &best_order);
-    checkForTwoPairs(&hand, &best_order);
-    checkForPair(&hand, &best_order);
-
-
-    addHandToHand(&best_order,hand);
-    return best_order;
-*/
 }
 
-void checkForPair(HAND_T **hand, HAND_T **best_order) {
+bool checkForPair(HAND_T **hand, HAND_T **best_order) {
     int i,j,k;
     HAND_T *aux = NULL, *aux2, *aux3;
     HAND_T *iterable;
     bool foundExtra;
+    bool result = false;
 
 
     for (i=1;i<14;i++){
@@ -181,18 +173,21 @@ void checkForPair(HAND_T **hand, HAND_T **best_order) {
                 subtractHandFromHand(&aux,aux2);
                 subtractHandFromHand(hand, aux2);
                 addHandToHand(best_order, sortHand(aux2,true));
+                result = true;
             }
 
         }
     }
+    return result;
 }
 
 
-void checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
+bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
     int i,j,k,l;
     HAND_T *aux = NULL, *aux2 = NULL, *aux3 = NULL;
     HAND_T *iterable;
     bool foundExtraPair,foundExtra;
+    bool result = false;
 
     for (i=1;i<14;i++) {
         k = 0;
@@ -243,17 +238,20 @@ void checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
                 subtractHandFromHand(&aux,aux2);
                 subtractHandFromHand(hand,aux2);
                 addHandToHand(best_order, sortHand(aux2,true));
+                result = true;
             }
         }
     }
+    return result;
 }
 
 
-void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
+bool checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
     int i,j,k;
     HAND_T *aux = NULL, *aux2, *aux3;
     HAND_T *iterable;
     bool foundExtra;
+    bool result = false;
 
 
     for (i=1;i<14;i++){
@@ -288,27 +286,36 @@ void checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
                 subtractHandFromHand(&aux,aux2);
                 subtractHandFromHand(hand, aux2);
                 addHandToHand(best_order, sortHand(aux2,true));
+                result = true;
             }
 
         }
     }
+
+    return result;
 }
 
-void checkForStraight(HAND_T **hand, HAND_T **best_order) {
+bool checkForStraight(HAND_T **hand, HAND_T **best_order) {
     HAND_T *aux, *sequence;
+    bool result = false;
 
     aux = sortHand(copyHand((*hand)), true);
     while (searchForSequence(&aux,&sequence)){
         subtractHandFromHand(&aux,sequence);
         subtractHandFromHand(hand, sequence);
         addHandToHand(best_order, sequence);
+        result = true;
     }
+
+
+    return result;
 }
 
-void checkForFlush(HAND_T **hand, HAND_T **best_order) {
+bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
 
     int i,j;
-    HAND_T *aux, *sequence, **addr = NULL;
+    bool result = false;
+    HAND_T *aux, **addr = NULL;
     HAND_T *diamond, *spade, *heart, *club;
     divideBySuit(*hand,&diamond,&spade,&heart,&club);
 
@@ -325,20 +332,20 @@ void checkForFlush(HAND_T **hand, HAND_T **best_order) {
             subtractHandFromHand(addr, aux);
             subtractHandFromHand(hand, aux);
             addHandToHand(best_order, sortHand(aux,true));
+            result = true;
 
-        }
-
-        aux = sortHand(copyHand(*addr), true);
-        while (searchForSequence(&aux, &sequence)) {
         }
     }
+
+    return result;
 }
 
-void checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
+bool checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
     int i,j,k,l;
     HAND_T *aux = NULL, *aux2, *aux3;
     HAND_T *iterable;
     bool foundExtra;
+    bool result = false;
 
 
     for (i=1;i<14;i++){
@@ -377,17 +384,21 @@ void checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
                 subtractHandFromHand(&aux,aux2);
                 subtractHandFromHand(hand, aux2);
                 addHandToHand(best_order, sortHand(aux2,true));
+                result = true;
             }
 
         }
     }
+
+    return result;
 }
 
-void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
+bool checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
     int i,j,k;
     HAND_T *aux = NULL, *aux2;
     HAND_T *iterable;
     bool foundExtra;
+    bool result = false;
 
 
     for (i=1;i<14;i++){
@@ -417,16 +428,20 @@ void checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
                 subtractHandFromHand(&aux,aux2);
                 subtractHandFromHand(hand, aux2);
                 addHandToHand(best_order, sortHand(aux2,true));
+                result = true;
             }
 
         }
     }
 
+    return result;
+
 }
 
-void checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
+bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
 
     int i;
+    bool result = false;
     HAND_T *aux, *sequence, **addr = NULL;
     HAND_T *diamond, *spade, *heart, *club;
 
@@ -444,13 +459,17 @@ void checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
             subtractHandFromHand(&aux, sequence);
             subtractHandFromHand(hand, sequence);
             addHandToHand(best_order, sequence);
+            result = true;
         }
     }
+
+    return result;
 }
 
-void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
+bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
 
     int i;
+    bool result = false;
     HAND_T *aux, **addr = NULL;
     HAND_T *diamond, *spade, *heart, *club;
 
@@ -468,9 +487,12 @@ void checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
             if (countPoints(aux) == SCORE_ROYAL_STRAIGHT_FLUSH) {
                 subtractHandFromHand(hand, aux);
                 addHandToHand(best_order, aux);
+                result = true;
             }
         }
     }
+
+    return result;
 }
 
 void test() {
