@@ -353,18 +353,13 @@ bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
         else if (i == 1) addr = &spade;
         else if (i == 2) addr = &heart;
         else if (i == 3) addr = &club;
-
         for (j = countCardsInHand(*addr) / 5; j > 0; j--) {
-
             aux = getFirsts(*addr, 5);
-
             subtractHandFromHand(addr, aux);
             subtractHandFromHand(hand, aux);
             addHandToHand(best_order, sortHand(aux, true));
             free_hand(&aux);
-
             result = true;
-
         }
     }
 
@@ -494,7 +489,6 @@ bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
         else if (i == 1) addr = &spade;
         else if (i == 2) addr = &heart;
         else if (i == 3) addr = &club;
-
         aux = sortHand(copyHand(*addr), true);
         while (searchForSequence(&aux, &sequence)) {
             subtractHandFromHand(&aux, sequence);
@@ -529,10 +523,8 @@ bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
         else if (i == 1) addr = &spade;
         else if (i == 2) addr = &heart;
         else if (i == 3) addr = &club;
-
         aux = sortHand(getFirsts(sortHandDec(*addr, false), 5), true);
         if (countCardsInHand(aux) == 5) {
-
             if (countPoints(aux) == SCORE_ROYAL_STRAIGHT_FLUSH) {
                 subtractHandFromHand(hand, aux);
                 addHandToHand(best_order, aux);
