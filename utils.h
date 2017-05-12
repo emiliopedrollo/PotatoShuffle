@@ -17,7 +17,7 @@ HAND_T *addHandToHand(HAND_T **hand, HAND_T *toAdd);
 HAND_T *addCardToHand(HAND_T **hand, CARD_T card);
 HAND_T *subtractHandFromHand(HAND_T **hand, HAND_T *toRemove);
 HAND_T *subtractCardFromHand(HAND_T **hand,CARD_T card);
-void permute(check *a, int l, int r, HAND_T *hand, HAND_T **best_order);
+void permute(check *a, int l, int r, HAND_T *hand);
 void swap(check *x, check *y);
 
 #endif

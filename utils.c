@@ -310,27 +310,28 @@ void swap(check *x, check *y)
    1. String
    2. Starting index of the string
    3. Ending index of the string. */
-void permute(check *a, int l, int r, HAND_T *hand, HAND_T **best_order)
+void permute(check *a, int l, int r, HAND_T *hand)
 {
     int i,j=0,score;
-    HAND_T *copy,*copy2;
+    HAND_T *copy,*copy2,*best_order = NULL;
+
     if (l == r){
         j=0;
         copy = copyHand(hand);
         while (j <= r){
-            a[j++](&copy,best_order);
+            a[j++](&copy,&best_order);
         }
-        copy2 = copyHand(*best_order);
+        copy2 = copyHand(best_order);
         addHandToHand(&copy2,copy);
         score = verifyPoints(copy2,false);
         if (score > high_score){
             high_score = score;
             free_hand(&best_hand);
             free_hand(&best_hand_leftover);
-            best_hand = copyHand(*best_order);
+            best_hand = copyHand(best_order);
             best_hand_leftover = copyHand(copy);
         }
-        free_hand(best_order);
+        free_hand(&best_order);
         free_hand(&copy);
         free_hand(&copy2);
     }
@@ -339,7 +340,7 @@ void permute(check *a, int l, int r, HAND_T *hand, HAND_T **best_order)
         for (i = l; i <= r; i++)
         {
             swap((a+l), (a+i));
-            permute(a, l+1, r,hand,best_order);
+            permute(a, l + 1, r, hand);
             swap((a+l), (a+i)); /*backtrack*/
         }
     }
