@@ -1,4 +1,5 @@
 #pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #pragma clang diagnostic ignored "-Wconversion"
 #ifndef   UTF8_H
 #define   UTF8_H
@@ -7,8 +8,6 @@
 
 #define   UTF8_MAXLEN 6
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 static size_t utf8_to_code(const unsigned char *const buffer, unsigned int *const codeptr)
 {
     if (!buffer) {
@@ -95,7 +94,6 @@ static size_t utf8_to_code(const unsigned char *const buffer, unsigned int *cons
     errno = EILSEQ;
     return 0;
 }
-#pragma clang diagnostic pop
 
 static size_t code_to_utf8(unsigned char *const buffer, const unsigned int code)
 {

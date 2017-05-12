@@ -45,8 +45,6 @@ int main() {
     int score;
     unsigned int seed;
 
-    /*test();*/
-
     srand((unsigned int) time(NULL));
 
     /* GOOD SEEDS */
@@ -70,14 +68,16 @@ int main() {
 
     printf("Score: %d\n", score);
 
-
     exit(0);
+
 }
 
 HAND_T *createHands(unsigned int seed) {
+
     int i;
     CARD_T **cards;
     HAND_T *new, *list = NULL;
+
     cards = malloc(DECK_SIZE * sizeof(cards));
     createDeck(cards);
     shuffle(cards, seed);
@@ -88,14 +88,17 @@ HAND_T *createHands(unsigned int seed) {
         new->next = list;
         list = new;
     }
+
     return list;
 }
 
 int verifyPoints(HAND_T *cards, bool display) {
+
     int i, j, points = 0, handPoints = 0;
-    char *handName;
-    handName = malloc(sizeof(char) * 30);
     HAND_T *pt_card, *hand, *aux;
+    char *handName;
+
+    handName = malloc(sizeof(char) * 30);
     pt_card = cards;
     /*maos devem estar ordenadas por valor, ascendente*/
     for (i = 0; i < 5; i++) {
@@ -114,7 +117,9 @@ int verifyPoints(HAND_T *cards, bool display) {
         pt_card->next = aux;
         pt_card = pt_card->next;
     }
+
     return points;
+
 }
 
 HAND_T *orderHands(HAND_T *hand) {
@@ -190,6 +195,7 @@ bool checkForPair(HAND_T **hand, HAND_T **best_order) {
     }
 
     return result;
+
 }
 
 
@@ -260,6 +266,7 @@ bool checkForTwoPairs(HAND_T **hand, HAND_T **best_order) {
     }
 
     return result;
+
 }
 
 
@@ -312,6 +319,7 @@ bool checkForThreeOfAKind(HAND_T **hand, HAND_T **best_order) {
     }
 
     return result;
+
 }
 
 bool checkForStraight(HAND_T **hand, HAND_T **best_order) {
@@ -330,6 +338,7 @@ bool checkForStraight(HAND_T **hand, HAND_T **best_order) {
     free_hand(&aux);
 
     return result;
+
 }
 
 bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
@@ -367,6 +376,7 @@ bool checkForFlush(HAND_T **hand, HAND_T **best_order) {
     free_hand(&club);
 
     return result;
+
 }
 
 bool checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
@@ -422,6 +432,7 @@ bool checkForFullHouse(HAND_T **hand, HAND_T **best_order) {
     }
 
     return result;
+
 }
 
 bool checkForFourOfAKind(HAND_T **hand, HAND_T **best_order) {
@@ -503,6 +514,7 @@ bool checkForStraightFlush(HAND_T **hand, HAND_T **best_order) {
     free_hand(&club);
 
     return result;
+
 }
 
 bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
@@ -538,4 +550,5 @@ bool checkForRoyalStraightFlash(HAND_T **hand, HAND_T **best_order) {
     free_hand(&club);
 
     return result;
+
 }

@@ -1,8 +1,10 @@
 #ifndef POTATOSHUFFLE_DECK_H
 
-#define DECK_SIZE	52
+#define DECK_SIZE    52
 
-typedef enum {DIAMOND, SPADE, HEART, CLUB} SUIT_T;
+typedef enum {
+    DIAMOND, SPADE, HEART, CLUB
+} SUIT_T;
 
 typedef struct {
     int value;
@@ -27,14 +29,19 @@ static const int SCORE_PAIR = 20;
 static const int SCORE_HIGH_CARD = 0;
 
 void printCard(CARD_T card);
+
 void printHands(HAND_T *hand);
+
 /*void printDeck(CARD_T **cards);*/
 void createDeck(CARD_T **cards);
+
 void shuffle(CARD_T **cards, unsigned int seed);
+
 int countPoints(HAND_T *hand);
-int countPointsWithDescription(HAND_T *hand,char* handName);
+
+int countPointsWithDescription(HAND_T *hand, char *handName);
 
 
 #define POTATOSHUFFLE_DECK_H
 
-#endif /*POTATOSHUFFLE_DECK_H*/
+#endif /* POTATOSHUFFLE_DECK_H */
