@@ -1,7 +1,6 @@
 #ifndef POTATOSHUFFLE_DECK_H
 
 #define DECK_SIZE	52
-#define SEED		1
 
 typedef enum {DIAMOND, SPADE, HEART, CLUB} SUIT_T;
 
@@ -29,7 +28,7 @@ static const int SCORE_HIGH_CARD = 0;
 
 void printCard(CARD_T card);
 void printHands(HAND_T *hand);
-void printDeck(CARD_T **cards);
+/*void printDeck(CARD_T **cards);*/
 void createDeck(CARD_T **cards);
 void shuffle(CARD_T **cards, unsigned int seed);
 int countPoints(HAND_T *hand);
@@ -38,4 +37,4 @@ int countPointsWithDescription(HAND_T *hand,char* handName);
 
 #define POTATOSHUFFLE_DECK_H
 
-#endif
+#endif /*POTATOSHUFFLE_DECK_H*/

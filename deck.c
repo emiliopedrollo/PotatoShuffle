@@ -4,6 +4,8 @@
 #include "deck.h"
 #include "utf8.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "missing_default_case"
 void printCard(CARD_T card){
 
     unsigned char  ch[UTF8_MAXLEN + 1];
@@ -41,12 +43,12 @@ void printCard(CARD_T card){
     printf("\033[1;37m");
 }
 
-void printDeck(CARD_T **cards){
+/*void printDeck(CARD_T **cards){
     int i;
     for(i=0; i<DECK_SIZE; i++)
         printCard(*cards[i]);
     return;
-}
+}*/
 
 void printHands(HAND_T *hand){
     HAND_T *pt_hand;
@@ -202,3 +204,5 @@ int countPointsWithDescription(HAND_T *hand,char* handName){
     strcpy(handName, "High Card");
     return SCORE_HIGH_CARD;
 }
+
+#pragma clang diagnostic pop
